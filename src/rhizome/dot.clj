@@ -148,7 +148,9 @@
              edge->descriptor
              cluster->parent
              node->cluster
-             cluster->descriptor]
+             cluster->descriptor
+             do-not-show-clusters-as-nodes? ; Probably a hack; works for my use case; I haven't thought about interactions with other things. -- Simon Katz 2017-07-08
+             ]
       :or {directed? true
            vertical? true
            node->descriptor (constantly nil)
@@ -211,6 +213,8 @@
 
            ;; nodes
            (->> nodes
+             (remove #(and do-not-show-clusters-as-nodes?
+                           (cluster? %)))
              (remove #(not= current-cluster (node->cluster %)))
              (map
                #(format-node (node->id %)
