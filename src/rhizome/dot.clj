@@ -149,6 +149,7 @@
              cluster->parent
              node->cluster
              cluster->descriptor
+             title
              do-not-show-clusters-as-nodes? ; Probably a hack; works for my use case; I haven't thought about interactions with other things. -- Simon Katz 2017-07-08
              ]
       :or {directed? true
@@ -273,6 +274,14 @@
                                                 (interpose "\n")
                                                 (apply str))
                                            (format descriptor)))))))
+
+                         ;; title
+                         (when-not subgraph?
+                           (when title
+                             [(str "label=\"" title "\"")
+                              "labelloc=top"
+                              "labeljust=left"
+                              "fontsize=16.0"]))
 
                          ["}\n"]))))))
 
