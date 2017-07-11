@@ -9,9 +9,9 @@
   "Escape characters that are significant for the dot format."
   [s]
   (reduce
-    #(str/replace %1 (str %2) (str "\\" %2))
-    s
-    escapable-characters))
+   #(str/replace %1 (str %2) (str "\\" %2))
+   s
+   escapable-characters))
 
 ;;;
 
@@ -31,14 +31,14 @@
 
 (defn translate-options [m]
   (->> m
-    (map
-      (fn [[k v]]
-        (if-let [[k* f] (option-translations k)]
-          (when-not (contains? m k*)
-            [k* (f v)])
-          [k v])))
-    (remove nil?)
-    (into {})))
+       (map
+        (fn [[k v]]
+          (if-let [[k* f] (option-translations k)]
+            (when-not (contains? m k*)
+              [k* (f v)])
+            [k v])))
+       (remove nil?)
+       (into {})))
 
 ;;;
 
@@ -62,21 +62,21 @@
     (coll? v) (if (literal? v)
                 (str "\"" (unwrap-literal v) "\"")
                 (str "\""
-                  (->> v
-                    (map format-options-value)
-                    (interpose ",")
-                    (apply str))
-                  "\""))
+                     (->> v
+                          (map format-options-value)
+                          (interpose ",")
+                          (apply str))
+                     "\""))
     :else (str v)))
 
 (defn format-label [label]
   (cond
     (sequential? label)
     (->> label
-      (map #(str "{ " (-> % format-label unwrap-literal) " }"))
-      (interpose " | ")
-      (apply str)
-      ->literal)
+         (map #(str "{ " (-> % format-label unwrap-literal) " }"))
+         (interpose " | ")
+         (apply str)
+         ->literal)
 
     (string? label)
     label
@@ -89,33 +89,33 @@
 
 (defn- format-options [m separator]
   (->>
-    (update-in m [:label] #(when % (format-label %)))
-    (remove (comp nil? second))
-    (map
-      (fn [[k v]]
-        (str (name k) "=" (format-options-value v))))
-    (interpose separator)
-    (apply str)))
+   (update-in m [:label] #(when % (format-label %)))
+   (remove (comp nil? second))
+   (map
+    (fn [[k v]]
+      (str (name k) "=" (format-options-value v))))
+   (interpose separator)
+   (apply str)))
 
 (defn- format-edge [src dst {:keys [directed?] :as options}]
   (let [options (update-in options [:label] #(or % ""))]
     (str src
-      (if directed?
-        " -> "
-        " -- ")
-      dst
-      "[" (format-options (dissoc options :directed?) ", ") "]")))
+         (if directed?
+           " -> "
+           " -- ")
+         dst
+         "[" (format-options (dissoc options :directed?) ", ") "]")))
 
 (defn- format-node [id {:keys [label shape] :as options}]
   (let [shape (or shape
-                (when (sequential? label)
-                  :record))
+                  (when (sequential? label)
+                    :record))
         options (assoc options
-                  :label (or label "")
-                  :shape shape)]
+                       :label (or label "")
+                       :shape shape)]
     (str id "["
-      (format-options options ", ")
-      "]")))
+         (format-options options ", ")
+         "]")))
 
 ;;;
 
@@ -170,111 +170,111 @@
                      (constantly false))
           node? (set nodes)]
 
-     (apply str
-       (if current-cluster
-         (str "subgraph " (cluster->id current-cluster))
-         (if directed?
-           "digraph"
-           "graph"))
-       " {\n"
+      (apply str
+             (if current-cluster
+               (str "subgraph " (cluster->id current-cluster))
+               (if directed?
+                 "digraph"
+                 "graph"))
+             " {\n"
 
-       ;; global options
-       (let [edge-options (:edge options)
-             node-options (:node options)]
-         (str
-           ;; graph[...]
-           "graph["
-           (-> (merge default-options options)
-             (update-in [:fontname] #(or % (when subgraph? "Monospace")))
-             (assoc :vertical? vertical?)
-             (dissoc :edge :node)
-             translate-options
-             (format-options ", "))
-           "]\n"
+             ;; global options
+             (let [edge-options (:edge options)
+                   node-options (:node options)]
+               (str
+                ;; graph[...]
+                "graph["
+                (-> (merge default-options options)
+                    (update-in [:fontname] #(or % (when subgraph? "Monospace")))
+                    (assoc :vertical? vertical?)
+                    (dissoc :edge :node)
+                    translate-options
+                    (format-options ", "))
+                "]\n"
 
-           ;; node[...]
-           "node["
-           (-> node-options
-             (update-in [:fontname] #(or % "Monospace"))
-             (translate-options)
-             (format-options ", "))
-           "]\n"
+                ;; node[...]
+                "node["
+                (-> node-options
+                    (update-in [:fontname] #(or % "Monospace"))
+                    (translate-options)
+                    (format-options ", "))
+                "]\n"
 
-           ;; edge[...]
-           "edge["
-           (-> edge-options
-             (update-in [:fontname] #(or % "Monospace"))
-             (translate-options)
-             (format-options ", "))
-           "]\n\n"))
+                ;; edge[...]
+                "edge["
+                (-> edge-options
+                    (update-in [:fontname] #(or % "Monospace"))
+                    (translate-options)
+                    (format-options ", "))
+                "]\n\n"))
 
-       (interpose "\n"
-         (concat
+             (interpose "\n"
+                        (concat
 
-           ;; nodes
-           (->> nodes
-             (remove #(and do-not-show-clusters-as-nodes?
-                           (cluster? %)))
-             (remove #(not= current-cluster (node->cluster %)))
-             (map
-               #(format-node (node->id %)
-                  (merge
-                    default-node-options
-                    (node->descriptor %)))))
+                         ;; nodes
+                         (->> nodes
+                              (remove #(and do-not-show-clusters-as-nodes?
+                                            (cluster? %)))
+                              (remove #(not= current-cluster (node->cluster %)))
+                              (map
+                               #(format-node (node->id %)
+                                             (merge
+                                              default-node-options
+                                              (node->descriptor %)))))
 
-           ;; clusters
-           (->> cluster->nodes
-             keys
-             (remove #(not= current-cluster (cluster->parent %)))
-             (map
-               #(apply graph->dot
-                  nodes
-                  adjacent
-                  (apply concat
-                    (assoc graph-descriptor
-                      ::cluster %
-                      :options (cluster->descriptor %))))))
+                         ;; clusters
+                         (->> cluster->nodes
+                              keys
+                              (remove #(not= current-cluster (cluster->parent %)))
+                              (map
+                               #(apply graph->dot
+                                       nodes
+                                       adjacent
+                                       (apply concat
+                                              (assoc graph-descriptor
+                                                     ::cluster %
+                                                     :options (cluster->descriptor %))))))
 
-           ;; edges
-           (when-not subgraph?
+                         ;; edges
+                         (when-not subgraph?
 
-             (->> nodes
+                           (->> nodes
 
-               ;; filter out destinations that aren't in `nodes`, and differentiate
-               ;; between nodes and clusters
-               (mapcat
-                 (fn [node]
-                   (map vector
-                     (repeat node)
-                     (->> node
-                       adjacent
-                       (map
-                         #(cond
-                            (node? %) [:node %]
-                            (cluster? %) [:cluster %]
-                            :else nil))
-                       (remove nil?)))))
+                                ;; filter out destinations that aren't in `nodes`, and differentiate
+                                ;; between nodes and clusters
+                                (mapcat
+                                 (fn [node]
+                                   (map vector
+                                        (repeat node)
+                                        (->> node
+                                             adjacent
+                                             (map
+                                              #(cond
+                                                 (node? %) [:node %]
+                                                 (cluster? %) [:cluster %]
+                                                 :else nil))
+                                             (remove nil?)))))
 
-               ;; format the edges
-               (map (fn [[a [type b]]]
-                      (let [descriptor (edge->descriptor a b)
-                            format #(format-edge
-                                      (node->id a)
-                                      (if (= :node type)
-                                        (node->id b)
-                                        (cluster->id b))
-                                      (merge
-                                        default-edge-options
-                                        {:directed? directed?}
-                                        %))]
-                        (if (vector? descriptor)
-                          (->> descriptor
-                            (map format)
-                            (interpose "\n")
-                            (apply str))
-                          (format descriptor)))))))
+                                ;; format the edges
+                                (map (fn [[a [type b]]]
+                                       (let [descriptor (edge->descriptor a b)
+                                             format #(format-edge
+                                                      (node->id a)
+                                                      (if (= :node type)
+                                                        (node->id b)
+                                                        (cluster->id b))
+                                                      (merge
+                                                       default-edge-options
+                                                       {:directed? directed?}
+                                                       %))]
+                                         (if (vector? descriptor)
+                                           (->> descriptor
+                                                (map format)
+                                                (interpose "\n")
+                                                (apply str))
+                                           (format descriptor)))))))
 
-           ["}\n"]))))))
+                         ["}\n"]))))))
 
 (defn tree->dot
   "Like tree-seq, but returns a string containing a GraphViz dot file.  Additional options
@@ -295,20 +295,20 @@
            cluster->descriptor (constantly nil)}}]
   (let [node->children (atom {})
         nodes (tree-seq
-                (comp branch? second)
-                (fn [x]
-                  (swap! node->children assoc x
-                    (map vector
-                      (repeatedly #(Object.))
-                      (children (second x))))
-                  (@node->children x))
-                [(Object.) root])]
+               (comp branch? second)
+               (fn [x]
+                 (swap! node->children assoc x
+                        (map vector
+                             (repeatedly #(Object.))
+                             (children (second x))))
+                 (@node->children x))
+               [(Object.) root])]
     (graph->dot nodes #(@node->children %)
-      :directed? true
-      :vertical? vertical?
-      :options options
-      :node->descriptor (comp node->descriptor second)
-      :edge->descriptor (fn [a b] (edge->descriptor (second a) (second b)))
-      :node->cluster (comp node->cluster second)
-      :cluster->parent cluster->parent
-      :cluster->descriptor cluster->descriptor)))
+                :directed? true
+                :vertical? vertical?
+                :options options
+                :node->descriptor (comp node->descriptor second)
+                :edge->descriptor (fn [a b] (edge->descriptor (second a) (second b)))
+                :node->cluster (comp node->cluster second)
+                :cluster->parent cluster->parent
+                :cluster->descriptor cluster->descriptor)))

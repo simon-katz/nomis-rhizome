@@ -1,7 +1,6 @@
 (ns rhizome.viz-test
-  (:use
-    rhizome.viz
-    clojure.test))
+  (:use clojure.test
+        rhizome.viz))
 
 (def g
   {:a [:b :c]
@@ -18,39 +17,39 @@
 
 (deftest test-viz
   (view-graph (keys g) g
-    :options {:dpi 500}
-    :node->descriptor (fn [n] {:label n})
-    :edge->descriptor (fn [src dst] {:label dst}))
+              :options {:dpi 500}
+              :node->descriptor (fn [n] {:label n})
+              :edge->descriptor (fn [src dst] {:label dst}))
   (Thread/sleep pause)
 
   (view-graph (keys g) g
-    :node->descriptor (fn [n] {:label n})
-    :node->cluster identity
-    :cluster->parent {:a :b})
+              :node->descriptor (fn [n] {:label n})
+              :node->cluster identity
+              :cluster->parent {:a :b})
   (Thread/sleep pause)
 
   (view-tree sequential? seq t-0
-    :node->descriptor (fn [n] {:label (when (number? n) (str n))}))
+             :node->descriptor (fn [n] {:label (when (number? n) (str n))}))
   (Thread/sleep pause)
 
   (view-tree sequential? seq t-0
-    :node->descriptor (fn [n] {:label (when (number? n) (str n))})
-    :node->cluster (fn [n] (when (number? n) (rem n 2)))
-    :cluster->descriptor (fn [n] {:label (if (even? n) "even" "odd")}))
+             :node->descriptor (fn [n] {:label (when (number? n) (str n))})
+             :node->cluster (fn [n] (when (number? n) (rem n 2)))
+             :cluster->descriptor (fn [n] {:label (if (even? n) "even" "odd")}))
   (Thread/sleep pause)
 
   (view-tree list? seq t-1
-    :node->descriptor (fn [n] {:label (when (vector? n) n)}))
+             :node->descriptor (fn [n] {:label (when (vector? n) n)}))
   (Thread/sleep pause)
 
   (view-tree list? seq t-1
-    :node->descriptor (fn [n] {:label (when (vector? n) n)})
-    :vertical? false)
+             :node->descriptor (fn [n] {:label (when (vector? n) n)})
+             :vertical? false)
   (Thread/sleep pause)
 
   (view-tree list? seq t-1
-    :node->descriptor (fn [n] {:label (when (vector? n) n)})
-    :options {:rankdir :RL})
+             :node->descriptor (fn [n] {:label (when (vector? n) n)})
+             :options {:rankdir :RL})
   (Thread/sleep pause)
 
 

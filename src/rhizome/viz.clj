@@ -1,25 +1,14 @@
 (ns rhizome.viz
-  (:use
-    [rhizome.dot])
-  (:require
-    [clojure.string :as str]
-    [clojure.java.shell :as sh]
-    [clojure.java.io :as io])
-  (:import
-    [java.awt
-     Toolkit
-     Dimension]
-    [java.awt.event
-     KeyEvent
-     WindowAdapter]
-    [java.awt.image
-     RenderedImage]
-    [javax.imageio
-     ImageIO]
-    [javax.swing
-     AbstractAction JComponent JFrame JLabel JScrollPane ImageIcon KeyStroke]
-    [javax.script
-     ScriptEngineManager]))
+  (:use [rhizome.dot])
+  (:require [clojure.java.io :as io]
+            [clojure.java.shell :as sh]
+            [clojure.string :as str])
+  (:import [java.awt Toolkit Dimension]
+           [java.awt.event KeyEvent WindowAdapter]
+           [java.awt.image RenderedImage]
+           [javax.imageio ImageIO]
+           [javax.script ScriptEngineManager]
+           [javax.swing AbstractAction JComponent JFrame JLabel JScrollPane ImageIcon KeyStroke]))
 
 (defn headless? []
   (= "true" (System/getProperty "java.awt.headless")))
@@ -36,32 +25,32 @@
   "Creates a frame for viewing graphviz images.  Only useful if you don't want to use the default frame."
   [{:keys [name close-promise dispose-on-close?]}]
   (delay
-    (let [frame (JFrame. ^String name)
-          image-icon (ImageIcon.)
-          pane (-> image-icon JLabel. JScrollPane.)]
-      (doto pane
-        (.. (getInputMap JComponent/WHEN_IN_FOCUSED_WINDOW)
-          (put close-key "closeWindow"))
-        (.. getActionMap
-          (put "closeWindow"
-            (proxy [AbstractAction] []
-              (actionPerformed [e]
-                (.setVisible frame false))))))
-      (doto frame
-        (.addWindowListener
-          (proxy [WindowAdapter] []
-            (windowClosing [e]
-              (.setVisible frame false)
-              (when dispose-on-close?
-                (.dispose frame))
-              (when close-promise
-                (deliver close-promise true)))))
-        (.setContentPane pane)
-        (.setSize 1024 768)
-        (.setDefaultCloseOperation javax.swing.WindowConstants/HIDE_ON_CLOSE))
+   (let [frame (JFrame. ^String name)
+         image-icon (ImageIcon.)
+         pane (-> image-icon JLabel. JScrollPane.)]
+     (doto pane
+       (.. (getInputMap JComponent/WHEN_IN_FOCUSED_WINDOW)
+           (put close-key "closeWindow"))
+       (.. getActionMap
+           (put "closeWindow"
+                (proxy [AbstractAction] []
+                  (actionPerformed [e]
+                    (.setVisible frame false))))))
+     (doto frame
+       (.addWindowListener
+        (proxy [WindowAdapter] []
+          (windowClosing [e]
+            (.setVisible frame false)
+            (when dispose-on-close?
+              (.dispose frame))
+            (when close-promise
+              (deliver close-promise true)))))
+       (.setContentPane pane)
+       (.setSize 1024 768)
+       (.setDefaultCloseOperation javax.swing.WindowConstants/HIDE_ON_CLOSE))
 
 
-      [frame image-icon pane])))
+     [frame image-icon pane])))
 
 (def default-frame (create-frame {:name "rhizome"}))
 
@@ -86,24 +75,24 @@
 (defn view-image
   "Takes an `image`, and displays it in a window.  If `frame` is not specified, then the default frame will be used."
   ([image]
-     (view-image default-frame image))
+   (view-image default-frame image))
   ([frame image]
-     (let [[^JFrame frame ^ImageIcon image-icon ^JLabel pane] @frame]
-       (.setImage image-icon image)
-       (.setVisible frame true)
-       (java.awt.EventQueue/invokeLater
-         #(send-to-front frame)))))
+   (let [[^JFrame frame ^ImageIcon image-icon ^JLabel pane] @frame]
+     (.setImage image-icon image)
+     (.setVisible frame true)
+     (java.awt.EventQueue/invokeLater
+      #(send-to-front frame)))))
 
 (defn- format-error [s err]
   (apply str
-    err "\n"
-    (interleave
-      (map
-        (fn [idx s]
-          (format "%3d: %s" idx s))
-        (range)
-        (str/split-lines s))
-      (repeat "\n"))))
+         err "\n"
+         (interleave
+          (map
+           (fn [idx s]
+             (format "%3d: %s" idx s))
+           (range)
+           (str/split-lines s))
+          (repeat "\n"))))
 
 (defn dot->image
   "Takes a string containing a GraphViz dot file, and renders it to an image.  This requires that GraphViz
@@ -120,8 +109,8 @@
                                           "Couldn't find `dot` executable: have you installed graphviz?"
                                           e))))))]
     (or
-      (ImageIO/read (io/input-stream out))
-      (throw (IllegalArgumentException. ^String (format-error s err))))))
+     (ImageIO/read (io/input-stream out))
+     (throw (IllegalArgumentException. ^String (format-error s err))))))
 
 (defn dot->svg
   "Takes a string containing a GraphViz dot file, and returns a string containing SVG.  This requires that GraphViz
@@ -129,17 +118,17 @@
   [s]
   (let [{:keys [out err]} (sh/sh "dot" "-Tsvg" :in s)]
     (or
-      out
-      (throw (IllegalArgumentException. ^String (format-error s err))))))
+     out
+     (throw (IllegalArgumentException. ^String (format-error s err))))))
 
 (defn save-image
   "Saves the given image buffer to the given filename. The default
-file type for the image is png, but an optional type may be supplied
-as a third argument."
+  file type for the image is png, but an optional type may be supplied
+  as a third argument."
   ([image filename]
-     (save-image image "png" filename))
+   (save-image image "png" filename))
   ([^RenderedImage image ^String filetype filename]
-     (ImageIO/write image filetype (io/file filename))))
+   (ImageIO/write image filetype (io/file filename))))
 
 (def
   ^{:doc "Takes a graph descriptor in the style of `graph->dot`, and returns a rendered image."
@@ -165,8 +154,8 @@ as a third argument."
   "Takes a graph descriptor in the style of `graph->dot`, and saves the image to disk."
   [nodes adjacent & {:keys [filename] :as options}]
   (-> (apply graph->dot nodes adjacent (apply concat options))
-    dot->image
-    (save-image filename)))
+      dot->image
+      (save-image filename)))
 
 (def
   ^{:doc "Takes a tree descriptor in the style of `tree->dot`, and returns a rendered image."
@@ -190,5 +179,5 @@ as a third argument."
   "Takes a graph descriptor in the style of `graph->dot`, and saves the image to disk."
   [branch? children root & {:keys [filename] :as options}]
   (-> (apply tree->dot branch? children root (apply concat options))
-    dot->image
-    (save-image filename)))
+      dot->image
+      (save-image filename)))
