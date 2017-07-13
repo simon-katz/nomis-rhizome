@@ -150,6 +150,7 @@
              node->cluster
              cluster->descriptor
              title
+             left-justify-cluster-labels?
              do-not-show-clusters-as-nodes? ; Probably a hack; works for my use case; I haven't thought about interactions with other things. -- Simon Katz 2017-07-08
              ]
       :or {directed? true
@@ -224,6 +225,8 @@
                                               (node->descriptor %)))))
 
                          ;; clusters
+                         (when left-justify-cluster-labels?
+                           ["labeljust=left"])
                          (->> cluster->nodes
                               keys
                               (remove #(not= current-cluster (cluster->parent %)))
