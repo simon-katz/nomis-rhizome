@@ -283,7 +283,6 @@
                            (when title
                              [(str "label=\"" title "\"")
                               "labelloc=top"
-                              "labeljust=left"
                               "fontsize=16.0"]))
 
                          ["}\n"]))))))
