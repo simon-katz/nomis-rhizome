@@ -105,6 +105,7 @@ If the value for `label` is not a string, typically it will be displayed as a st
 ## License
 
 Portions copyright © 2013 Zachary Tellman
+
 Copyright © 2017 Simon Katz
 
 Distributed under the [MIT License](http://opensource.org/licenses/MIT)
