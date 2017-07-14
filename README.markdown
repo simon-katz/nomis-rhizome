@@ -1,13 +1,23 @@
 ![](/docs/rhizome.jpg)
 
-Rhizome is a library for visualizing graph and tree structures.
+nomis-rhizome is a library for visualizing graph and tree structures.
+
+It is a fork of rhizome (https://github.com/ztellman/rhizome), with some hacky
+extras. Maybe one day I will tidy some of this and submit pull requests to the
+original project.
+
+This documentation hasn't been updated to include the newly-added features in
+the fork.
+
+The purpose of this fork is to provide features needed by https://github.com/simon-katz/lein-nomis-ns-graph.
+
 
 ## Usage
 
 To include in your project, add this to your `project.clj`:
 
 ```clj
-[rhizome "0.2.7"]
+[nomis-rhizome "0.2.0"]
 ```
 
 
@@ -94,6 +104,7 @@ If the value for `label` is not a string, typically it will be displayed as a st
 
 ## License
 
-Copyright © 2013 Zachary Tellman
+Portions copyright © 2013 Zachary Tellman
+Copyright © 2017 Simon Katz
 
 Distributed under the [MIT License](http://opensource.org/licenses/MIT)
