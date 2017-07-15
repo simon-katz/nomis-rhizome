@@ -128,11 +128,30 @@
 (defn- cluster->id [s]
   (*cluster->id* s))
 
+(def ^:private *my-gensym-count (atom 0))
+
+(defn ^:private my-next-gensym-count []
+  (swap! *my-gensym-count inc))
+
+(defn ^:private my-gensym
+  "Return a symbol whose name is the concatenation of `prefix-string` with
+  a count of how many times this function has been called.
+  A kind of deterministic version of `gensym`, useful for repeatability.
+  Unlike `gensym`, there is no guarantee that the result will be unique.
+  So, useful when the results will be part of automatic tests."
+  [prefix-string]
+  (symbol (str prefix-string (my-next-gensym-count)))
+  (. clojure.lang.Symbol
+     (intern (str prefix-string
+                  (str (my-next-gensym-count))))))
+
 (defmacro ^:private with-gensyms
   "Makes sure the mapping of node and clusters onto identifiers is consistent within its scope."
   [& body]
-  `(binding [*node->id* (or *node->id* (memoize (fn [_#] (gensym "node"))))
-             *cluster->id* (or *cluster->id* (memoize (fn [_#] (gensym "cluster"))))]
+  `(binding [*node->id* (or *node->id*
+                            (memoize (fn [_#] (my-gensym "node"))))
+             *cluster->id* (or *cluster->id*
+                               (memoize (fn [_#] (my-gensym "cluster"))))]
      ~@body))
 
 (defn graph->dot
