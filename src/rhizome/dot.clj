@@ -128,10 +128,11 @@
 (defn- cluster->id [s]
   (*cluster->id* s))
 
-(def ^:private *my-gensym-count (atom 0))
+(def ^:private ^:dynamic
+  **my-gensym-count* nil)
 
 (defn ^:private my-next-gensym-count []
-  (swap! *my-gensym-count inc))
+  (swap! **my-gensym-count* inc))
 
 (defn ^:private my-gensym
   "Return a symbol whose name is the concatenation of `prefix-string` with
@@ -148,7 +149,8 @@
 (defmacro ^:private with-gensyms
   "Makes sure the mapping of node and clusters onto identifiers is consistent within its scope."
   [& body]
-  `(binding [*node->id* (or *node->id*
+  `(binding [**my-gensym-count* (or **my-gensym-count* (atom 0))
+             *node->id* (or *node->id*
                             (memoize (fn [_#] (my-gensym "node"))))
              *cluster->id* (or *cluster->id*
                                (memoize (fn [_#] (my-gensym "cluster"))))]
