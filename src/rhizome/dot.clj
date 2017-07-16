@@ -172,15 +172,15 @@
              cluster->descriptor
              title
              left-justify-cluster-labels?
-             do-not-show-clusters-as-nodes? ; Probably a hack; works for my use case; I haven't thought about interactions with other things. -- Simon Katz 2017-07-08
-             ]
+             cluster->show-as-node?]
       :or {directed? true
            vertical? true
            node->descriptor (constantly nil)
            edge->descriptor (constantly nil)
            cluster->parent (constantly nil)
            node->cluster (constantly nil)
-           cluster->descriptor (constantly nil)}
+           cluster->descriptor (constantly nil)
+           cluster->show-as-node? (constantly true)}
       :as graph-descriptor}]
 
   (with-gensyms
@@ -236,8 +236,8 @@
 
                          ;; nodes
                          (->> nodes
-                              (remove #(and do-not-show-clusters-as-nodes?
-                                            (cluster? %)))
+                              (remove #(and (cluster? %)
+                                            (not (cluster->show-as-node? %))))
                               (remove #(not= current-cluster (node->cluster %)))
                               (map
                                #(format-node (node->id %)
