@@ -1,4 +1,4 @@
-(defproject nomis-rhizome "0.3.0"
+(defproject nomis-rhizome "0.4.0-SNAPSHOT"
   :description "a simple way to visualize graphs"
   :url "https://github.com/simon-katz/nomis-rhizome"
   :license {:name "MIT License"
