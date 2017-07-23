@@ -14,12 +14,10 @@ The purpose of this fork is to provide features needed by https://github.com/sim
 
 ## Usage
 
-To include in your project, add this to your `project.clj`:
+[![Clojars Project](https://img.shields.io/clojars/v/nomis-rhizome.svg)](https://clojars.org/nomis-rhizome)
 
-```clj
-[nomis-rhizome "0.2.0"]
-```
-
+To include in your project, add `[nomis-rhizome "0.3.0"]` (or the version above,
+if later) to your `project.clj`.
 
 Use of this project requires that [Graphviz](http://www.graphviz.org) is installed, which can be checked by running `dot -V` at the command line.  If it's not installed, you can do the following:
 
